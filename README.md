@@ -1,0 +1,1 @@
+# gradle-pathing-jar
