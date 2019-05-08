@@ -11,39 +11,28 @@ repositories {
   jcenter()
 }
 
-dependencies {
-  implementation 'com.google.guava:guava:19.0'
-  testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
-}
-
-test {
-  useJUnitPlatform()
+configurations {
+  pathing
 }
 
 task pathingJar(type: Jar) {
   dependsOn configurations.compileClasspath
   appendix = "pathing"
   doFirst {
-    // def gradleUserHome = new File(gradle.getGradleUserHomeDir(), "caches")
-
-    // def relativeClasspathEntries = configurations.compileClasspath.files.collect {
-    //   new File(gradleUserHome.getAbsolutePath()).toURI().relativize(new File(it.getAbsolutePath()).toURI()).getPath()
-    // }
     manifest {
       attributes "Class-Path": configurations.compileClasspath.files.join(" ")
     }
   }
 }
 
-compileJava {
-  dependsOn(pathingJar)
-  doFirst {
-    println it.classpath
-    println it.classpath.files
+dependencies {
+  implementation 'com.google.guava:guava:19.0'
+  testImplementation 'org.junit.jupiter:junit-jupiter:5.4.2'
+  pathing pathingJar.outputs.files
+}
 
-    classpath = files(pathingJar.archiveFile.getAsFile())
+test {
+  useJUnitPlatform()
+}
 
-    println it.classpath
-    println it.classpath.files
-  }
-}   
+compileJava.classpath = configurations.pathing
